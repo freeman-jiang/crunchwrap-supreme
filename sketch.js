@@ -6,6 +6,7 @@ function preload() {
 }
 
 let isPlaying = false;
+let soundEnded = true;
 
 cells = [];
 n = 30;
@@ -50,6 +51,10 @@ function setup() {
     colorSchemeIndex = (colorSchemeIndex + 1) % colorSchemes.length;
   });
 
+  sound.onended(() => {
+    soundEnded = true;
+  });
+
   console.log(cells);
 }
 
@@ -69,9 +74,9 @@ function draw() {
   }
 
   if (mouseIsPressed) {
-    if (!isPlaying) {
+    if (soundEnded) {
       sound.play();
-      isPlaying = true;
+      soundEnded = false;
     }
 
     if (!isPushing) {
@@ -125,8 +130,8 @@ function draw() {
     cell.show();
   } else {
     isPushing = false;
-    isPlaying = false;
     if (sound) sound.stop();
+    soundEnded = true;
   }
 }
 
