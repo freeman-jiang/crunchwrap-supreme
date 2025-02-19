@@ -13,6 +13,7 @@ let colorButton;
 const colorSchemes = [
   ["#FDB347", "#FFC72C", "#FFB74C", "#F4A460", "#CD7F32"], // Original warm
   ["#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEEAD"], // Playful pastels
+  ["#E3F4FF", "#C5E3FF", "#F8FAFC", "#D4F1F9", "#F4CCE9"], // winter frost
   ["#2C3E50", "#E74C3C", "#ECF0F1", "#3498DB", "#2980B9"], // Corporate cool
   ["#8E44AD", "#9B59B6", "#BE90D4", "#BF55EC", "#9A12B3"], // Purple haze
   ["#1B1B1B", "#373737", "#747474", "#A6A6A6", "#E3E3E3"], // Monochrome
@@ -68,7 +69,14 @@ function draw() {
     }
 
     // Create a new cell at mouse position with random velocity
-    cell = new Cell(mouseX, mouseY, random(-3, 3), random(-3, 3), true);
+    cell = new Cell(
+      mouseX,
+      mouseY,
+      random(-3, 3),
+      random(-3, 3),
+      true,
+      millis()
+    );
 
     // Create hover_cells additional cells in a 200x200 area around mouse
     for (let i = 0; i < hover_cells; i++) {
@@ -78,7 +86,8 @@ function draw() {
           random(mouseY - 100, mouseY + 100),
           0,
           0,
-          true
+          true,
+          millis()
         )
       );
     }
@@ -86,7 +95,7 @@ function draw() {
     // Push away existing cells that weren't created by clicking
     if (millis() - pushAwayStartTime < 3000) {
       for (let cell of cells) {
-        if (!cell.fromClick) {
+        if (!cell.createdFromClick) {
           // Only push cells that weren't created by clicking
           let dx = cell.x - mouseX;
           let dy = cell.y - mouseY;
@@ -109,12 +118,13 @@ function draw() {
 }
 
 class Cell {
-  constructor(x, y, sx, sy, fromClick) {
+  constructor(x, y, sx, sy, fromClick, createdFromClickAt) {
     this.x = x;
     this.y = y;
     this.sx = sx;
     this.sy = sy;
-    this.fromClick = fromClick;
+    this.createdFromClick = fromClick;
+    this.createdFromClickAt = createdFromClickAt;
   }
   //actual voronoi here
   show() {
@@ -143,6 +153,24 @@ class Cell {
     // Update position based on speed
     this.x += this.sx;
     this.y += this.sy;
+
+    // If cell was created by click and enough time has passed, start random movement
+    if (this.createdFromClick && this.createdFromClickAt) {
+      const timeSinceCreation = millis() - this.createdFromClickAt;
+      if (timeSinceCreation > 500) {
+        // Start moving after 1 second
+        const unfreezeProgress = map(timeSinceCreation, 500, 4000, 0, 1);
+        if (unfreezeProgress < 1) {
+          // Gradually increase random movement
+          this.sx += random(-0.1, 0.1) * unfreezeProgress;
+          this.sy += random(-0.1, 0.1) * unfreezeProgress;
+        } else {
+          // Full random movement
+          this.sx += random(-0.1, 0.1);
+          this.sy += random(-0.1, 0.1);
+        }
+      }
+    }
 
     // Add friction to gradually slow down cells
     this.sx *= 0.95;
