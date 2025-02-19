@@ -7,6 +7,16 @@ hover_cells = 5;
 ss = 800;
 let pushAwayStartTime = 0;
 let isPushing = false;
+let colorSchemeIndex = 0;
+let colorButton;
+
+const colorSchemes = [
+  ["#FDB347", "#FFC72C", "#FFB74C", "#F4A460", "#CD7F32"], // Original warm
+  ["#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEEAD"], // Playful pastels
+  ["#2C3E50", "#E74C3C", "#ECF0F1", "#3498DB", "#2980B9"], // Corporate cool
+  ["#8E44AD", "#9B59B6", "#BE90D4", "#BF55EC", "#9A12B3"], // Purple haze
+  ["#1B1B1B", "#373737", "#747474", "#A6A6A6", "#E3E3E3"], // Monochrome
+];
 
 function setup() {
   r = dist(0, 0, ss, ss);
@@ -25,19 +35,27 @@ function setup() {
       false
     );
   }
+
+  // Create color scheme button
+  colorButton = createButton("Change Colors");
+  colorButton.position(10, 10);
+  colorButton.mousePressed(() => {
+    colorSchemeIndex = (colorSchemeIndex + 1) % colorSchemes.length;
+  });
+
   console.log(cells);
 }
 
 let oldMouseX = 0;
 let oldMouseY = 0;
 
-colors = ["#FDB347", "#FFC72C", "#FFB74C", "#F4A460", "#CD7F32"];
-
 function draw() {
   for (let i = 0; i < cells.length; i++) {
     c = i / cells.length;
 
-    fill(colors[i % colors.length]);
+    fill(
+      colorSchemes[colorSchemeIndex][i % colorSchemes[colorSchemeIndex].length]
+    );
     thisCell = cells[i];
     thisCell.show();
     thisCell.update();
