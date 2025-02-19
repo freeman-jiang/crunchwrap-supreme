@@ -1,6 +1,12 @@
 // fast Voronoi diagram with Hoff's algorithm
 // basic implementation credit sandorlevi, 2016
 
+function preload() {
+  sound = loadSound("crunch.mp3");
+}
+
+let isPlaying = false;
+
 cells = [];
 n = 30;
 hover_cells = 5;
@@ -63,6 +69,11 @@ function draw() {
   }
 
   if (mouseIsPressed) {
+    if (!isPlaying) {
+      sound.play();
+      isPlaying = true;
+    }
+
     if (!isPushing) {
       pushAwayStartTime = millis();
       isPushing = true;
@@ -114,6 +125,8 @@ function draw() {
     cell.show();
   } else {
     isPushing = false;
+    isPlaying = false;
+    if (sound) sound.stop();
   }
 }
 
